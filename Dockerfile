@@ -1,4 +1,4 @@
-FROM openjdk:18-jdk-slim
+FROM openjdk:18-ea-jdk-slim-bullseye
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -17,14 +17,14 @@ RUN apt update && apt install -y curl \
 
 
 # Docker labels.
-LABEL maintainer "Halim Qarroum <hqm.post@gmail.com>"
-LABEL description "A Docker image allowing to run an Android emulator"
-LABEL version "1.0.0"
+LABEL maintainer "Yelissey Oshlokov <elisey.oshlokov@onetwotrip.com>"
+LABEL description "A Docker image for API 31 with locale"
+LABEL version "1.0.3"
 
 
 # Arguments that can be overriden at build-time.
 ARG INSTALL_ANDROID_SDK=1
-ARG API_LEVEL=33
+ARG API_LEVEL=31
 ARG IMG_TYPE=google_apis
 ARG ARCHITECTURE=x86_64
 ARG CMD_LINE_VERSION=9477386_latest
@@ -41,7 +41,7 @@ ENV ANDROID_SDK_ROOT=/opt/android \
 	ABI=${IMG_TYPE}/${ARCHITECTURE} \
 	GPU_ACCELERATED=$GPU_ACCELERATED \
 	QTWEBENGINE_DISABLE_SANDBOX=1 \
-	ANDROID_EMULATOR_WAIT_TIME_BEFORE_KILL=10 \
+	ANDROID_EMULATOR_WAIT_TIME_BEFORE_KILL=120 \
 	ANDROID_AVD_HOME=/data
 
 # Exporting environment variables to keep in the path

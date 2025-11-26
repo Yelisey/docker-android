@@ -25,7 +25,10 @@ socat tcp-listen:"$ADB_PORT",bind="$LOCAL_IP",fork tcp:127.0.0.1:"$ADB_PORT" &
 export USER=root
 
 # Creating the Android Virtual Emulator.
-TEST_AVD=$(avdmanager list avd | grep -c "android.avd" || true)
+AVD_NAME="android"
+AVD_CONFIG_FILE="/data/${AVD_NAME}.avd/config.ini"
+TEST_AVD=$(avdmanager list avd | grep -c "$AVD_NAME.avd" || true)
+
 if [ "$TEST_AVD" == "1" ]; then
   echo "Use the exists Android Virtual Emulator ..."
 else
@@ -33,10 +36,56 @@ else
   echo "Using package '$PACKAGE_PATH', ABI '$ABI' and device '$DEVICE_ID' for creating the emulator"
   echo no | avdmanager create avd \
     --force \
-    --name android \
+    --name "$AVD_NAME" \
     --abi "$ABI" \
     --package "$PACKAGE_PATH" \
     --device "$DEVICE_ID"
+
+  # !!! ЗАМЕНА СЕКЦИИ: Создание минималистичного config.ini
+  echo "Creating minimal, high-performance config.ini..."
+
+  # Создаем необходимый путь к файлу
+  mkdir -p "$(dirname "$AVD_CONFIG_FILE")"
+
+  # Записываем оптимизированный config.ini
+  cat > "$AVD_CONFIG_FILE" <<- EOL
+PlayStore.enabled = false
+abi.type = x86_64
+avd.ini.encoding = UTF-8
+# -- РЕСУРСЫ --
+hw.cpu.arch = x86_64
+hw.cpu.ncore = ${OPT_CORES} # Используем переменную CORES (по умолчанию 4)
+hw.ramSize = ${OPT_MEMORY} # Используем переменную MEMORY (по умолчанию 8192)
+# -- ДИСПЛЕЙ (1080p) --
+hw.lcd.density = 420
+hw.lcd.width = 1080
+hw.lcd.height = 1920
+# -- МЕДИА И СЕНСОРЫ (Отключено для CI) --
+hw.audioInput = no
+hw.audioOutput = no
+hw.accelerometer = no
+hw.gyroscope = no
+hw.dPad = no
+hw.mainKeys = yes
+hw.keyboard = no
+hw.sensors.proximity = no
+hw.sensors.magnetic_field = no
+hw.sensors.orientation = no
+hw.sensors.temperature = no
+hw.sensors.light = no
+hw.sensors.pressure = no
+hw.sensors.humidity = no
+hw.sensors.magnetic_field_uncalibrated = no
+hw.sensors.gyroscope_uncalibrated = no
+# -- СИСТЕМНЫЕ ПАРАМЕТРЫ --
+image.sysdir.1 = system-images/android-31/google_apis/x86_64/
+tag.display = Google APIs
+tag.id = google_apis
+skin.dynamic = yes
+skin.name=1080x1920
+EOL
+
+  echo "...Minimal config.ini created successfully."
 fi
 
 if [ "$OPT_SKIP_AUTH" == "true" ]; then
@@ -71,6 +120,7 @@ emulator \
   -gpu "$GPU_MODE" \
   -memory $OPT_MEMORY \
   -no-boot-anim \
+  -dns-server 8.8.8.8 \
   -cores $OPT_CORES \
   -ranchu \
   $AUTH_FLAG \

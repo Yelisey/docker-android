@@ -20,6 +20,12 @@ function disable_animation() {
   echo "...Disable animations"
 };
 
+function set_locale() {
+  adb shell "su 0 setprop persist.sys.locale ru-RU"
+  adb shell "su 0 setprop ctl.restart zygote"
+  echo "...Set locale"
+};
+
 function hidden_policy() {
   adb shell "settings put global hidden_api_policy_pre_p_apps 1;settings put global hidden_api_policy_p_apps 1;settings put global hidden_api_policy 1"
   echo "...Hidden policy"
@@ -36,7 +42,7 @@ function wait_for_boot() {
     adb wait-for-device
     sleep 1
   done
-  
+
   # Waiting for the boot sequence to be completed.
   COMPLETED=$(adb shell getprop sys.boot_completed | tr -d '\r')
   while [ "$COMPLETED" != "1" ]; do
@@ -53,5 +59,9 @@ function wait_for_boot() {
   hidden_policy
   sleep 1
   fi
+
+  set_locale
+  sleep 5
+
   update_state "ANDROID_READY"
 }
