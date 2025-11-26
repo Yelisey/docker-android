@@ -8,9 +8,10 @@ source ./emulator-monitoring.sh
 EMULATOR_CONSOLE_PORT=5554
 # The ADB port used to connect to ADB.
 ADB_PORT=5555
-OPT_MEMORY=${MEMORY:-8192}
+OPT_MEMORY=${MEMORY:-6144}
 OPT_CORES=${CORES:-4}
 OPT_SKIP_AUTH=${SKIP_AUTH:-true}
+API_VERSION=31
 AUTH_FLAG=
 # Start ADB server by listening on all interfaces.
 echo "Starting the ADB server ..."
@@ -55,9 +56,9 @@ avd.ini.encoding = UTF-8
 # -- РЕСУРСЫ --
 hw.cpu.arch = x86_64
 hw.cpu.ncore = ${OPT_CORES} # Используем переменную CORES (по умолчанию 4)
-hw.ramSize = ${OPT_MEMORY} # Используем переменную MEMORY (по умолчанию 8192)
+hw.ramSize = ${OPT_MEMORY} # Используем переменную MEMORY (по умолчанию 6144)
 # -- ДИСПЛЕЙ (1080p) --
-hw.lcd.density = 420
+hw.lcd.density = 120
 hw.lcd.width = 1080
 hw.lcd.height = 1920
 # -- МЕДИА И СЕНСОРЫ (Отключено для CI) --
@@ -78,7 +79,7 @@ hw.sensors.humidity = no
 hw.sensors.magnetic_field_uncalibrated = no
 hw.sensors.gyroscope_uncalibrated = no
 # -- СИСТЕМНЫЕ ПАРАМЕТРЫ --
-image.sysdir.1 = system-images/android-31/google_apis/x86_64/
+image.sysdir.1 = system-images/android-${API_VERSION}/google_apis/x86_64/
 tag.display = Google APIs
 tag.id = google_apis
 skin.dynamic = yes
