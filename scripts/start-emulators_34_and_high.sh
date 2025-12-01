@@ -89,6 +89,25 @@ EOL
   echo "...Minimal config.ini created successfully."
 fi
 
+## 🚀 Добавление `advancedFeatures.ini` (Новый Раздел)
+
+ADVANCED_FEATURES_FILE="/root/.android/advancedFeatures.ini"
+
+echo "Creating advanced features file: ${ADVANCED_FEATURES_FILE}..."
+
+# Создаем директорию, если она не существует
+mkdir -p "$(dirname "$ADVANCED_FEATURES_FILE")"
+
+# Создаем или перезаписываем advancedFeatures.ini с нужными настройками
+cat > "$ADVANCED_FEATURES_FILE" <<- EOL
+# Отключение Vulkan для предотвращения сбоев, связанных с ним
+Vulkan = off
+# Включение прямого доступа к GL-памяти для оптимизации
+GLDirectMem = on
+EOL
+
+echo "...Advanced features configured successfully."
+
 if [ "$OPT_SKIP_AUTH" == "true" ]; then
   AUTH_FLAG="-skip-adb-auth"
 fi
@@ -102,7 +121,7 @@ if [ "$GPU_ACCELERATED" == "true" ]; then
   export GPU_MODE="host"
   Xvfb "$DISPLAY" -screen 0 1920x1080x16 -nolisten tcp &
 else
-  export GPU_MODE="swiftshader_indirect"
+  export GPU_MODE="swangle_indirect"
 fi
 
 # Asynchronously write updates on the standard output
@@ -127,7 +146,3 @@ emulator \
   $AUTH_FLAG \
   -no-window \
   -no-snapshot  || update_state "ANDROID_STOPPED"
-
-
-  # -qemu \
-  # -smp 8,sockets=1,cores=4,threads=2,maxcpus=8

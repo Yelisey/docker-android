@@ -18,7 +18,7 @@ RUN apt update && apt install -y curl \
 
 # Docker labels.
 LABEL maintainer "Yelissey Oshlokov <elisey.oshlokov@onetwotrip.com>"
-LABEL description "A Docker image for API 31 with locale"
+LABEL description "A Docker image for API 31"
 LABEL version "1.0.3"
 
 
