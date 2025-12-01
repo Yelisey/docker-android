@@ -11,7 +11,7 @@ ADB_PORT=5555
 OPT_MEMORY=${MEMORY:-6144}
 OPT_CORES=${CORES:-4}
 OPT_SKIP_AUTH=${SKIP_AUTH:-true}
-API_VERSION=31
+API_VERSION=34
 AUTH_FLAG=
 # Start ADB server by listening on all interfaces.
 echo "Starting the ADB server ..."
