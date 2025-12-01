@@ -58,9 +58,9 @@ hw.cpu.arch = x86_64
 hw.cpu.ncore = ${OPT_CORES} # Используем переменную CORES (по умолчанию 4)
 hw.ramSize = ${OPT_MEMORY} # Используем переменную MEMORY (по умолчанию 6144)
 # -- ДИСПЛЕЙ (1080p) --
-hw.lcd.density = 320
-hw.lcd.width = 1080
-hw.lcd.height = 1920
+hw.lcd.density = 120
+hw.lcd.width = 480
+hw.lcd.height = 800
 # -- МЕДИА И СЕНСОРЫ (Отключено для CI) --
 hw.audioInput = no
 hw.audioOutput = no
@@ -83,7 +83,7 @@ image.sysdir.1 = system-images/android-${API_VERSION}/google_apis/x86_64/
 tag.display = Google APIs
 tag.id = google_apis
 skin.dynamic = yes
-skin.name=1080x1920
+skin.name=480x800
 EOL
 
   echo "...Minimal config.ini created successfully."
@@ -119,7 +119,7 @@ fi
 if [ "$GPU_ACCELERATED" == "true" ]; then
   export DISPLAY=":0.0"
   export GPU_MODE="host"
-  Xvfb "$DISPLAY" -screen 0 1920x1080x16 -nolisten tcp &
+  Xvfb "$DISPLAY" -screen 0 800x480x16 -nolisten tcp &
 else
   export GPU_MODE="swangle_indirect"
 fi
