@@ -2,9 +2,11 @@
 
 set -e
 
-# If the installation flag of the Android SDK is set
-# we download the Android command-line tools,
-# install the SDK, platform tools and the emulator.
+<<COMMENT
+Если флаг установки Android SDK установлен,
+мы загружаем инструменты командной строки Android,
+устанавливаем SDK, инструменты платформы и эмулятор
+COMMENT
 if [ "$INSTALL_ANDROID_SDK" == "1" ]; then
   echo "Installing the Android SDK, platform tools and emulator ..."
   wget https://dl.google.com/android/repository/commandlinetools-linux-${CMD_LINE_VERSION}.zip -P /tmp && \

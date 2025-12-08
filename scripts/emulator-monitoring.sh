@@ -2,48 +2,50 @@
 
 set -e
 
-# Writes a log with a key and a value
-# as a JSON object on the standard output.
+# Логи
 function write_log() {
   echo "{ \"type\": \"$1\", \"value\": \"$2\" }"
 }
 
-# Writes a state update on the standard output.
+# Пишем о состояниях симулятора в лог.
 function update_state() {
   write_log "state-update" "$1"
 }
 
+<<COMMENT Полное отключение любой анимации
 function disable_animation() {
   adb shell "settings put global window_animation_scale 0.0"
   adb shell "settings put global transition_animation_scale 0.0"
   adb shell "settings put global animator_duration_scale 0.0"
   echo "...Disable animations"
 };
+COMMENT
 
+# Ставим ru-RU локаль
 function set_locale() {
   adb shell "su 0 setprop persist.sys.locale ru-RU"
   adb shell "su 0 setprop ctl.restart zygote"
   echo "...Set locale"
 };
 
+# политики Android
 function hidden_policy() {
   adb shell "settings put global hidden_api_policy_pre_p_apps 1;settings put global hidden_api_policy_p_apps 1;settings put global hidden_api_policy 1"
   echo "...Hidden policy"
 };
 
 
-# Waits for the emulator to boot and writes
-# state updates on the standard output.
+# Ждать, пока Android закрузится
 function wait_for_boot() {
   update_state "ANDROID_BOOTING"
 
-  # Waiting for the ADB server to start.
+  # Ждать загрузки adb
   while [ -n "$(adb wait-for-device > /dev/null)" ]; do
     adb wait-for-device
     sleep 1
   done
 
-  # Waiting for the boot sequence to be completed.
+  # Ждать пока эмулятора не загрузится
   COMPLETED=$(adb shell getprop sys.boot_completed | tr -d '\r')
   while [ "$COMPLETED" != "1" ]; do
     COMPLETED=$(adb shell getprop sys.boot_completed | tr -d '\r')

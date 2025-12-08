@@ -1,110 +1,99 @@
-<br /><br /><br />
 <p align="center">
   <img width="400" src="assets/icon.png" />
-</p><br /><br />
+</p>
 
 # docker-android
-> A minimal and customizable Docker image running the Android emulator as a service.
+> Минималистичный и настраиваемый Docker-образ, запускающий эмулятор Android как сервис.
 
-[![Docker Image CI](https://github.com/HQarroum/docker-android/actions/workflows/docker-image.yml/badge.svg)](https://github.com/HQarroum/docker-android/actions/workflows/docker-image.yml)
-[![DeepSource](https://deepsource.io/gh/HQarroum/docker-android.svg/?label=active+issues&show_trend=true&token=JTfGSHolIiMj0WNfv2ES0I6X)](https://deepsource.io/gh/HQarroum/docker-android/?ref=repository-badge)
-![Docker Pulls](https://img.shields.io/docker/pulls/halimqarroum/docker-android)
+Текущая версия: **1.0.1**
 
-Current version: **1.1.0**
+## 🔖 Возможности
 
-## 📋 Table of contents
+- Минимальный образ на базе Alpine с эмулятором Android и поддержкой KVM.
+- В образе встроена Java Runtime Environment 11.
+- Настраиваемая версия Android, тип устройства и типы образов.
+- Встроенный проброс портов эмулятора и ADB через интерфейс сети контейнера.
+- Образы эмулятора очищаются при каждом перезапуске.
+- Работает в headless-режиме, подходит для CI. Совместим со [`scrcpy`](https://github.com/Genymobile/scrcpy) для удалённого управления экраном Android.
 
-- [Features](#-features)
-- [Description](#-description)
-- [Usage](#-usage)
-- [See also](#-see-also)
+## 🔰 Описание
 
-## 🔖 Features
+Цель проекта — предоставить оптимизированный по размеру Docker-образ с минимальным необходимым ПО для удалённого управления работоспособным эмулятором Android по сети. В образе только сам эмулятор, сервер ADB для подключения извне и QEMU c поддержкой `libvirt`.
 
-- Minimal Alpine based image bundled with the Android emulator and KVM support.
-- Bundles the Java Runtime Environment 11 in the image.
-- Customizable Android version, device type and image types.
-- Port-forwarding of emulator and ADB on the container network interface built-in.
-- Emulator images are wiped each time the emulator re-starts.
-- Runs headless, suitable for CI farms. Compatible with [`scrcpy`](https://github.com/Genymobile/scrcpy) to remotely control the Android screen.
+Можно собрать этот образ без Android SDK и эмулятора Android, чтобы сделать его ещё меньше. Сравнение размеров различных сборок:
 
-## 🔰 Description
+| Вариант                   |   Без сжатия    |  Сжатый      |
+|---------------------------|-----------------|--------------|
+| API 33 + Эмулятор         |      5.84 ГБ    |   1.97 ГБ    |
+| API 32 + Эмулятор         |      5.89 ГБ    |   1.93 ГБ    |
+| API 28 + Эмулятор         |      4.29 ГБ    |   1.46 ГБ    |
+| Без SDK и эмулятора       |      414 МБ     |   138 МБ     |
 
-The focus of this project is to provide a size-optimized Docker image bundled with the minimal amount of software required to expose a fully functionning Android emulator that's remotely controllable over the network. This image only contains the Android emulator itself, an ADB server used to remotely connect into the emulator from outside the container, and QEMU with `libvirt` support.
+## 📘 Использование
 
-You can build this image without the Android SDK and without the Android emulator to make the image smaller. Below is a size comparison between some of the possible build variants.
+По умолчанию при сборке с образом будут установлены Android SDK, инструменты платформы и эмулятор.
 
-Variant                   |   Uncompressed   |  Compressed  |
-------------------------- | ---------------- | ------------ |
-API 33 + Emulator         |      5.84 GB     |    1.97 GB   |
-API 32 + Emulator         |      5.89 GB     |    1.93 GB   |
-API 28 + Emulator         |      4.29 GB     |    1.46 GB   |
-Without SDK and emulator  |      414 MB      |    138 MB    |
-
-## 📘 Usage
-
-By default, a build will bundle the Android SDK, platform tools and emulator with the image.
-
-with docker-compose:
+Через docker-compose:
 
 ```bash
 docker compose up android-emulator
 ```
 
-or with GPU acceleration
+или с ускорением GPU:
+
 ```bash
 docker compose up android-emulator-cuda
 ```
 
-or for example with GPU acceleration and google playstore
+или с ускорением GPU и Google Play Store:
+
 ```bash
 docker compose up android-emulator-cuda-store
 ```
 
-with only docker
-
+Используя только docker:
 
 ```bash
 docker build -t android-emulator .
 ```
 
-## Keys
+## Ключи
 
-To run google_apis_playstore image, you need to have same adbkey between emulator and client.
+Чтобы запустить образ google_apis_playstore, между эмулятором и клиентом должны совпадать ключи adbkey.
 
-You can generate one by running `adb keygen adbkey`, that generates 2 files - adbkey and adbkey.pub.
+Можно сгенерировать их командой `adb keygen adbkey`, она создаст файлы adbkey и adbkey.pub.
 
-override them inside ./keys directory.
+Перезапишите их в папке ./keys.
 
-### Running the container
+### Запуск контейнера
 
-Once the image is built, you can mount your KVM driver on the container and expose its ADB port.
+После сборки образа можно смонтировать KVM-драйвер в контейнер и пробросить порт ADB.
 
-> Ensure 4GB of memory and at least 8GB of disk space for API 33.
+> Требуется 4ГБ оперативной памяти и минимум 8ГБ диска для API 33.
 
 ```bash
 docker run -it --rm --device /dev/kvm -p 5555:5555 android-emulator
 ```
 
-### Save data/storage after restart (wipe)
+### Сохранение данных после перезапуска
 
-All avd save in docker dir `/data`, name for avd is `android`
+Все avd сохраняются в папке `/data` контейнера, имя avd — `android`.
 
 ```bash
 docker run -it --rm --device /dev/kvm -p 5555:5555 -v ~/android_avd:/data android-emulator
 ```
 
-### Connect ADB to the container
+### Подключение ADB к контейнеру
 
-The ADB server in the container will be spawned automatically and listen on all interfaces in the container. After a few seconds, once the kernel has booted, you will be able to connect ADB to the container.
+Сервер ADB запустится автоматически в контейнере и будет слушать все интерфейсы. Через несколько секунд после загрузки ядра можно будет подключиться к контейнеру по ADB:
 
 ```bash
 adb connect 127.0.0.1:5555
 ```
 
-Additionally, you can use [`scrcpy`](https://github.com/Genymobile/scrcpy) to control the screen of the emulator remotely. To do so, you simply have to connect ADB and run it locally.
+Также можно использовать [`scrcpy`](https://github.com/Genymobile/scrcpy) для управления эмулятором. Просто подключитесь по ADB и запустите scrcpy локально.
 
-> By default, the emulator runs with a Pixel preset (1080x1920).
+> По умолчанию эмулятор работает с пресетом Pixel (1080x1920).
 
 ```bash
 scrcpy
@@ -126,19 +115,19 @@ scrcpy
 </table>
 <br />
 
-### Customize the image
+### Кастомизация образа
 
-It is possible to customize the API level (Android version) and the image type (Google APIs vs PlayStore) when building the image.
+Можно указать версию Android (API level) и тип образа (Google APIs или PlayStore) при сборке.
 
-> By default, the image will build with API 33 with support for Google APIs for an x86_64 architecture.
+> По умолчанию собирается API 33 (Google APIs, x86_64).
 
-This can come in handy when integrating multiple images as part of a CI pipeline where an application or a set of applications need to be tested against different Android versions. There are 2 variables that can be specified at build time to change the Android image.
+Это удобно при интеграции нескольких образов в CI, если нужно тестировать приложение на разных версиях Android. Можно задать 2 переменные при сборке:
 
-- `API_LEVEL` - Specifies the [API level](https://apilevels.com/) associated with the image. Use this parameter to change the Android version.
-- `IMG_TYPE` - Specifies the type of image to install.
-- `ARCHITECTURE` Specifies the CPU architecture of the Android image. Note that only `x86_64` and `x86` are actively supported by this image.
+- `API_LEVEL` — [API level](https://apilevels.com/) образа, меняет версию Android.
+- `IMG_TYPE` — тип устанавливаемого образа.
+- `ARCHITECTURE` — архитектура ЦПУ (поддерживаются только x86_64 и x86).
 
-The below example will install Android Pie with support for the Google Play Store.
+Этот пример построит Android Pie с поддержкой PlayStore:
 
 ```bash
 docker build \
@@ -148,49 +137,47 @@ docker build \
   --tag android-emulator .
 ```
 
-### Variables
-#### Default variables
+### Переменные
+#### Значения по умолчанию
 
-#### Disable animation
+Отключение анимаций
 DISABLE_ANIMATION=false
 
-#### Disable hidden policy
+Отключение скрытой политики
 DISABLE_HIDDEN_POLICY=false
 
-#### Skip adb authentication
+Пропустить аутентификацию adb
 SKIP_AUTH=true
 
-#### Memory for emulator
+Память для эмулятора
 MEMORY=8192
 
-#### Cores for emulator
+Ядер для эмулятора
 CORES=4
 
-### Mount an external drive in the container
+### Монтирование внешнего диска
 
-It might be sometimes useful to have the entire Android SDK folder outside of the container (stored on a shared distributed filesystem such as NFS for example), to significantly reduce the size and the build time of the image.
-
-To do so, you can specify a specific argument at build time to disable the download and installation of the SDK in the image.
+Иногда полезно держать SDK вне контейнера, например, на NFS, чтобы уменьшить размер образа и ускорить сборку. Для этого отключите скачивание SDK в образ:
 
 ```bash
 docker build -t android-emulator --build-arg INSTALL_ANDROID_SDK=0 .
 ```
 
-> You will need mount the SDK in the container at `/opt/android`.
+> Не забудьте смонтировать SDK в контейнер по `/opt/android`.
 
 ```bash
 docker run -it --rm --device /dev/kvm -p 5555:5555 -v /shared/android/sdk:/opt/android/ android-emulator
 ```
 
-### Pull from Docker Hub
+### Загрузка образов с Docker Hub
 
-Different pre-built images of `docker-android` exist on [Docker Hub](https://hub.docker.com/r/halimqarroum/docker-android). Each image variant is tagged using its the api level and image type. For example, to pull an API 33 image, you can run the following.
+В [Docker Hub](https://hub.docker.com/r/halimqarroum/docker-android) есть разные варианты образов. Каждый вариант тэгируется по API и типу образа, например для API 33:
 
 ```bash
 docker pull halimqarroum/docker-android:api-33
 ```
 
-## 👀 See also
+## 👀 См. также
 
-- The [alpine-android](https://github.com/alvr/alpine-android) project which is based on a different Alpine image.
-- The [docker-android](https://github.com/budtmo/docker-android) project which offers a WebRTC interface to an Android emulator.
+- [alpine-android](https://github.com/alvr/alpine-android) — другой проект на базе Alpine.
+- [docker-android](https://github.com/budtmo/docker-android) — поддерживает WebRTC-интерфейс для андроид-эмулятора.
